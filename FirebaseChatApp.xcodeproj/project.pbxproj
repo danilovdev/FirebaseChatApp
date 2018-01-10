@@ -10,6 +10,9 @@
 		3C4837BF20051D8200345C1A /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4837BE20051D8200345C1A /* LoginViewController.swift */; };
 		3C96D35320064CD400D60765 /* FirebaseChatApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3CA01ACF20051A2F00E24CAF /* FirebaseChatApp.xcdatamodeld */; };
 		3C96D35420064CD500D60765 /* FirebaseChatApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3CA01ACF20051A2F00E24CAF /* FirebaseChatApp.xcdatamodeld */; };
+		3C96D359200658DB00D60765 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3C96D3582006556600D60765 /* GoogleService-Info.plist */; };
+		3C96D35A200658DB00D60765 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3C96D3582006556600D60765 /* GoogleService-Info.plist */; };
+		3C96D35B200658DC00D60765 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3C96D3582006556600D60765 /* GoogleService-Info.plist */; };
 		3CA01AC920051A2F00E24CAF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA01AC820051A2F00E24CAF /* AppDelegate.swift */; };
 		3CA01ACB20051A2F00E24CAF /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA01ACA20051A2F00E24CAF /* ViewController.swift */; };
 		3CA01ACE20051A2F00E24CAF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3CA01ACC20051A2F00E24CAF /* Main.storyboard */; };
@@ -300,6 +303,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3CA01AD620051A2F00E24CAF /* LaunchScreen.storyboard in Resources */,
+				3C96D359200658DB00D60765 /* GoogleService-Info.plist in Resources */,
 				3CA01AD320051A2F00E24CAF /* Assets.xcassets in Resources */,
 				3CA01ACE20051A2F00E24CAF /* Main.storyboard in Resources */,
 			);
@@ -309,6 +313,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C96D35A200658DB00D60765 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -316,6 +321,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C96D35B200658DC00D60765 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
