@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Firebase
 
 class LoginViewController: UIViewController {
     
@@ -19,15 +20,44 @@ class LoginViewController: UIViewController {
         return view
     }()
     
-    let loginRegisterButton: UIButton = {
+    lazy var loginRegisterButton: UIButton = {
         let button = UIButton(type: .system)
         button.backgroundColor = UIColor(r: 80, g: 101, b: 161)
         button.setTitle("Register", for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        button.addTarget(self, action: #selector(handleRegister), for: .touchUpInside)
         return button
     }()
+    
+    @objc func handleRegister() {
+        guard let email = emailTextField.text, let password = passwordTextField.text, let name = nameTextField.text else {
+            print("Form is not valid!")
+            return
+        }
+        Auth.auth().createUser(withEmail: email, password: password) { (user, error) in
+            if error != nil {
+                print(error!)
+                return
+            }
+            
+            guard let uid = user?.uid else {
+                return
+            }
+            
+            let reference = Database.database().reference()
+            let userReference = reference.child("users").child(uid)
+            let values = ["name": name, "email": email]
+            userReference.updateChildValues(values, withCompletionBlock: { (error, ref) in
+                if error != nil {
+                    print(error!)
+                    return
+                }
+            })
+            
+        }
+    }
     
     let nameTextField: UITextField = {
         let textField = UITextField()
@@ -66,7 +96,8 @@ class LoginViewController: UIViewController {
     
     let profileImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "")
+        imageView.image = UIImage(named: "user-profile")
+        imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
