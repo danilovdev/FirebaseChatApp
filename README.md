@@ -7,3 +7,7 @@ Part 5 and part 6 completed. January 13, 2018 What is done:
 4. Loading images from Firebase with URLSession.shared.dataTask(...) 
 5. Using DispatchQueue.main.async for asynchronous displaying loaded images
 6. Cache images with NSCache
+
+Part 7 completed. January 14, 2018 What is done:
+1. Compress images with UIImageJPEGRepresentation
+2. Using titleView in navigationItem of UINavigationController
