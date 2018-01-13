@@ -106,19 +106,35 @@ class LoginViewController: UIViewController {
                 return
             }
             
-            let reference = Database.database().reference()
-            let userReference = reference.child("users").child(uid)
-            let values = ["name": name, "email": email]
-            userReference.updateChildValues(values, withCompletionBlock: { (error, ref) in
-                if error != nil {
-                    print(error!)
-                    return
-                }
-                
-                self.dismiss(animated: true)
-            })
-            
+            let imageName = NSUUID().uuidString
+            let storageRef = Storage.storage().reference().child("profile_images").child("\(imageName).png")
+            if let uploadData = UIImagePNGRepresentation(self.profileImageView.image!) {
+                storageRef.putData(uploadData, metadata: nil, completion: { (metaData, error) in
+                    if error != nil {
+                        print(error!)
+                        return
+                    }
+                    
+                    if let profileImageUrl = metaData?.downloadURL()?.absoluteString {
+                        let values = ["name": name, "email": email, "profileImageUrl": profileImageUrl]
+                        
+                        self.registerUserIntoDatabase(uid: uid, values: values)
+                    }
+                })
+            }
         }
+    }
+    
+    private func registerUserIntoDatabase(uid: String, values: [String: Any]) {
+        let reference = Database.database().reference()
+        let userReference = reference.child("users").child(uid)
+        userReference.updateChildValues(values, withCompletionBlock: { (error, ref) in
+            if error != nil {
+                print(error!)
+                return
+            }
+            self.dismiss(animated: true)
+        })
     }
     
     let nameTextField: UITextField = {
@@ -156,11 +172,17 @@ class LoginViewController: UIViewController {
         return textField
     }()
     
-    let profileImageView: UIImageView = {
+    lazy var profileImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "user-profile")
         imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleSelectProfileImageView))
+        gestureRecognizer.numberOfTapsRequired = 1
+        imageView.isUserInteractionEnabled = true
+        imageView.addGestureRecognizer(gestureRecognizer)
+        
         return imageView
     }()
 
@@ -232,6 +254,7 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.isUserInteractionEnabled = true
         view.backgroundColor = UIColor(r: 61, g: 91, b: 151)
         
         view.addSubview(inputsContainerView)

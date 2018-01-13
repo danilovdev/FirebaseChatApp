@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		3C02021E2007D29A0013D0C6 /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C02021D2007D29A0013D0C6 /* UserCell.swift */; };
+		3C340EC32009E221007FD3F8 /* LoginController+Handlers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C340EC22009E221007FD3F8 /* LoginController+Handlers.swift */; };
+		3C340EC6200A0870007FD3F8 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C340EC5200A0870007FD3F8 /* Extensions.swift */; };
 		3C4837BF20051D8200345C1A /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4837BE20051D8200345C1A /* LoginViewController.swift */; };
 		3C96D35320064CD400D60765 /* FirebaseChatApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3CA01ACF20051A2F00E24CAF /* FirebaseChatApp.xcdatamodeld */; };
 		3C96D35420064CD500D60765 /* FirebaseChatApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3CA01ACF20051A2F00E24CAF /* FirebaseChatApp.xcdatamodeld */; };
@@ -53,6 +55,8 @@
 		205CC12BAA1EFD8B6EFB8E2B /* Pods-FirebaseChatApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseChatApp.release.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseChatApp/Pods-FirebaseChatApp.release.xcconfig"; sourceTree = "<group>"; };
 		2A64B51CC94939F73E2FA78F /* Pods-FirebaseChatAppUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseChatAppUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseChatAppUITests/Pods-FirebaseChatAppUITests.release.xcconfig"; sourceTree = "<group>"; };
 		3C02021D2007D29A0013D0C6 /* UserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
+		3C340EC22009E221007FD3F8 /* LoginController+Handlers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoginController+Handlers.swift"; sourceTree = "<group>"; };
+		3C340EC5200A0870007FD3F8 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		3C4837BE20051D8200345C1A /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		3C96D3582006556600D60765 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		3C96D36620079F2300D60765 /* NewMessageController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMessageController.swift; sourceTree = "<group>"; };
@@ -121,12 +125,21 @@
 			path = Cell;
 			sourceTree = "<group>";
 		};
+		3C340EC4200A085B007FD3F8 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				3C340EC5200A0870007FD3F8 /* Extensions.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		3C4837BD20051D6600345C1A /* Controller */ = {
 			isa = PBXGroup;
 			children = (
 				3C4837BE20051D8200345C1A /* LoginViewController.swift */,
 				3CA01ACA20051A2F00E24CAF /* MessagesController.swift */,
 				3C96D36620079F2300D60765 /* NewMessageController.swift */,
+				3C340EC22009E221007FD3F8 /* LoginController+Handlers.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -164,6 +177,7 @@
 		3CA01AC720051A2F00E24CAF /* FirebaseChatApp */ = {
 			isa = PBXGroup;
 			children = (
+				3C340EC4200A085B007FD3F8 /* Helpers */,
 				3C02021B2007D2850013D0C6 /* View */,
 				3C96D3682007CF2500D60765 /* Model */,
 				3C4837BD20051D6600345C1A /* Controller */,
@@ -522,7 +536,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C4837BF20051D8200345C1A /* LoginViewController.swift in Sources */,
+				3C340EC6200A0870007FD3F8 /* Extensions.swift in Sources */,
 				3C96D36720079F2300D60765 /* NewMessageController.swift in Sources */,
+				3C340EC32009E221007FD3F8 /* LoginController+Handlers.swift in Sources */,
 				3C96D36A2007CF3100D60765 /* User.swift in Sources */,
 				3CA01AD120051A2F00E24CAF /* FirebaseChatApp.xcdatamodeld in Sources */,
 				3CA01ACB20051A2F00E24CAF /* MessagesController.swift in Sources */,
