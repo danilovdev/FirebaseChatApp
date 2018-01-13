@@ -11,6 +11,8 @@ import Firebase
 
 class LoginViewController: UIViewController {
     
+    var messagesController: MessagesController?
+    
     var inputsContainerViewHeightAnchor: NSLayoutConstraint?
     
     var nameTextFieldHeightAnchor: NSLayoutConstraint?
@@ -78,8 +80,9 @@ class LoginViewController: UIViewController {
                 return
             }
             
-            self.dismiss(animated: true)
+            self.messagesController?.fetchUserAndSetupNavBarTitle()
             
+            self.dismiss(animated: true)
         }
     }
     
@@ -108,7 +111,8 @@ class LoginViewController: UIViewController {
             
             let imageName = NSUUID().uuidString
             let storageRef = Storage.storage().reference().child("profile_images").child("\(imageName).png")
-            if let uploadData = UIImagePNGRepresentation(self.profileImageView.image!) {
+            if let profileImage = self.profileImageView.image,
+                let uploadData = UIImageJPEGRepresentation(profileImage, 0.1) {
                 storageRef.putData(uploadData, metadata: nil, completion: { (metaData, error) in
                     if error != nil {
                         print(error!)
@@ -133,6 +137,11 @@ class LoginViewController: UIViewController {
                 print(error!)
                 return
             }
+            let user = User()
+            user.name = values["name"] as? String
+            user.email = values["email"] as? String
+            user.profileImageUrl = values["profileImageUrl"] as? String
+            self.messagesController?.setupNavBarWithUser(user: user)
             self.dismiss(animated: true)
         })
     }
