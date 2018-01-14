@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3C02021E2007D29A0013D0C6 /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C02021D2007D29A0013D0C6 /* UserCell.swift */; };
+		3C12D413200BA02100ABD37E /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C12D412200BA02100ABD37E /* Message.swift */; };
 		3C340EC32009E221007FD3F8 /* LoginController+Handlers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C340EC22009E221007FD3F8 /* LoginController+Handlers.swift */; };
 		3C340EC6200A0870007FD3F8 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C340EC5200A0870007FD3F8 /* Extensions.swift */; };
 		3C340EC8200B49E1007FD3F8 /* ChatLogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C340EC7200B49E1007FD3F8 /* ChatLogController.swift */; };
@@ -56,6 +57,7 @@
 		205CC12BAA1EFD8B6EFB8E2B /* Pods-FirebaseChatApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseChatApp.release.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseChatApp/Pods-FirebaseChatApp.release.xcconfig"; sourceTree = "<group>"; };
 		2A64B51CC94939F73E2FA78F /* Pods-FirebaseChatAppUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseChatAppUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseChatAppUITests/Pods-FirebaseChatAppUITests.release.xcconfig"; sourceTree = "<group>"; };
 		3C02021D2007D29A0013D0C6 /* UserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
+		3C12D412200BA02100ABD37E /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		3C340EC22009E221007FD3F8 /* LoginController+Handlers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoginController+Handlers.swift"; sourceTree = "<group>"; };
 		3C340EC5200A0870007FD3F8 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		3C340EC7200B49E1007FD3F8 /* ChatLogController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatLogController.swift; sourceTree = "<group>"; };
@@ -151,6 +153,7 @@
 			isa = PBXGroup;
 			children = (
 				3C96D3692007CF3100D60765 /* User.swift */,
+				3C12D412200BA02100ABD37E /* Message.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -544,6 +547,7 @@
 				3C96D36720079F2300D60765 /* NewMessageController.swift in Sources */,
 				3C340EC32009E221007FD3F8 /* LoginController+Handlers.swift in Sources */,
 				3C96D36A2007CF3100D60765 /* User.swift in Sources */,
+				3C12D413200BA02100ABD37E /* Message.swift in Sources */,
 				3CA01AD120051A2F00E24CAF /* FirebaseChatApp.xcdatamodeld in Sources */,
 				3CA01ACB20051A2F00E24CAF /* MessagesController.swift in Sources */,
 				3CA01AC920051A2F00E24CAF /* AppDelegate.swift in Sources */,

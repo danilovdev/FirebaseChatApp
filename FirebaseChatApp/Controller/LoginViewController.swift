@@ -138,6 +138,7 @@ class LoginViewController: UIViewController {
                 return
             }
             let user = User()
+            user.id = uid
             user.name = values["name"] as? String
             user.email = values["email"] as? String
             user.profileImageUrl = values["profileImageUrl"] as? String
