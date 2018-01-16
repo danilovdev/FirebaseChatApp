@@ -41,18 +41,15 @@ class MessagesController: UITableViewController {
                 message.fromId = dict["fromId"] as? String
                 message.toId = dict["toId"] as? String
                 message.text = dict["text"] as? String
-//                message.timestamp = NSNumber(value: dict["timestamp"])
-//                self.messages.append(message)
+                message.timestamp = dict["timestamp"] as? Int
                 
                 if let toId = message.toId {
                     self.messagesDictionary[toId] = message
                     self.messages = Array(self.messagesDictionary.values)
                     self.messages.sort(by: { (message1, message2) -> Bool in
-                        return message1.timestamp!.intValue > message2.timestamp!.intValue
+                        return message1.timestamp! > message2.timestamp!
                     })
                 }
-                
-                
                 
                 DispatchQueue.main.async {
                     self.tableView.reloadData()

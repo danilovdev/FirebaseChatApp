@@ -18,5 +18,5 @@ class Message {
     
     var text: String?
     
-    var timestamp: NSNumber?
+    var timestamp: Int?
 }
