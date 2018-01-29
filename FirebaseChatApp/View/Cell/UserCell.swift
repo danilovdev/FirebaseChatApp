@@ -12,20 +12,25 @@ import Firebase
 
 class UserCell: UITableViewCell {
     
+    fileprivate func setupNameAndProfileImage() {
+        
+        if let id = message?.chatPartnerId() {
+            let userRef = Database.database().reference().child("users").child(id)
+            userRef.observeSingleEvent(of: .value, with: { snapshot in
+                if let dictionary = snapshot.value as? [String: Any] {
+                    self.textLabel?.text = dictionary["name"] as? String
+                    
+                    if let profileImageUrl = dictionary["profileImageUrl"] as? String {
+                        self.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
+                    }
+                }
+            })
+        }
+    }
+    
     var message: Message? {
         didSet {
-            if let toId = message?.toId {
-                let userRef = Database.database().reference().child("users").child(toId)
-                userRef.observeSingleEvent(of: .value, with: { snapshot in
-                    if let dictionary = snapshot.value as? [String: Any] {
-                        self.textLabel?.text = dictionary["name"] as? String
-                        
-                        if let profileImageUrl = dictionary["profileImageUrl"] as? String {
-                            self.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
-                        }
-                    }
-                })
-            }
+            setupNameAndProfileImage()
             detailTextLabel?.text = message?.text
             if let seconds = message?.timestamp {
                 let timestampDate = Date(timeIntervalSince1970: TimeInterval(seconds))
@@ -36,6 +41,8 @@ class UserCell: UITableViewCell {
             }
         }
     }
+    
+    
     
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -49,7 +56,6 @@ class UserCell: UITableViewCell {
     let timeLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "HH:MM:SS"
         label.textColor = .lightGray
         label.font = UIFont.systemFont(ofSize: 13)
         return label

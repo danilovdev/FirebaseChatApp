@@ -29,7 +29,43 @@ class MessagesController: UITableViewController {
         
         checkIfUserIsLoggedIn()
         
-        observeMessages()
+//        observeMessages()
+        
+    }
+    
+    func observeUserMessages() {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            return
+        }
+        let userMessagesRef = Database.database().reference().child("user-messages").child(uid)
+        userMessagesRef.observe(.childAdded) { snapshot in
+            
+            let messageId = snapshot.key
+            let messagesReference = Database.database().reference().child("messages").child(messageId)
+            
+            messagesReference.observeSingleEvent(of: .value, with: { snapshot in
+                
+                if let dict = snapshot.value as? [String: Any] {
+                    let message = Message()
+                    message.fromId = dict["fromId"] as? String
+                    message.toId = dict["toId"] as? String
+                    message.text = dict["text"] as? String
+                    message.timestamp = dict["timestamp"] as? Int
+                    
+                    if let toId = message.toId {
+                        self.messagesDictionary[toId] = message
+                        self.messages = Array(self.messagesDictionary.values)
+                        self.messages.sort(by: { (message1, message2) -> Bool in
+                            return message1.timestamp! > message2.timestamp!
+                        })
+                    }
+                    
+                    DispatchQueue.main.async {
+                        self.tableView.reloadData()
+                    }
+                }
+            })
+        }
     }
     
     func observeMessages() {
@@ -56,6 +92,32 @@ class MessagesController: UITableViewController {
                 }
             }
         }
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let message = messages[indexPath.row]
+        
+        guard let chatPartnerId = message.chatPartnerId() else {
+            return
+        }
+        
+        let ref = Database.database().reference().child("users").child(chatPartnerId)
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            guard let dictionary = snapshot.value as? [String: Any] else {
+                return
+            }
+            
+            let user = User()
+            user.id = chatPartnerId
+            user.name = dictionary["name"] as? String
+            user.email = dictionary["email"] as? String
+            user.profileImageUrl = dictionary["profileImageUrl"] as? String
+            
+            self.showChatLogControllerForUser(user: user)
+            
+        }
+        
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -98,6 +160,13 @@ class MessagesController: UITableViewController {
     }
     
     func setupNavBarWithUser(user: User) {
+        
+        messages.removeAll()
+        messagesDictionary.removeAll()
+        tableView.reloadData()
+        
+        observeUserMessages()
+        
         let titleView = UIView()
         titleView.frame = CGRect(x: 0, y: 0, width: 100, height: 40)
         titleView.backgroundColor = .red
@@ -134,7 +203,6 @@ class MessagesController: UITableViewController {
         containerView.centerYAnchor.constraint(equalTo: titleView.centerYAnchor).isActive = true
 
         navigationItem.titleView = titleView
-        
     }
     
     @objc func showChatLogControllerForUser(user: User) {

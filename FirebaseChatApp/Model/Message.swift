@@ -19,4 +19,8 @@ class Message {
     var text: String?
     
     var timestamp: Int?
+    
+    func chatPartnerId() -> String? {
+        return fromId == Auth.auth().currentUser?.uid ? toId : fromId
+    }
 }
