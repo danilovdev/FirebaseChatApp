@@ -11,6 +11,8 @@ import Firebase
 
 class MessagesController: UITableViewController {
     
+    var timer: Timer?
+    
     let cellId = "cellId"
     
     var messages = [Message]()
@@ -28,8 +30,6 @@ class MessagesController: UITableViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: newMessageImage, style: .plain, target: self, action: #selector(handleNewMessage))
         
         checkIfUserIsLoggedIn()
-        
-//        observeMessages()
         
     }
     
@@ -52,47 +52,28 @@ class MessagesController: UITableViewController {
                     message.text = dict["text"] as? String
                     message.timestamp = dict["timestamp"] as? Int
                     
-                    if let toId = message.toId {
-                        self.messagesDictionary[toId] = message
+                    if let chatPartnerId = message.chatPartnerId() {
+                        self.messagesDictionary[chatPartnerId] = message
                         self.messages = Array(self.messagesDictionary.values)
                         self.messages.sort(by: { (message1, message2) -> Bool in
                             return message1.timestamp! > message2.timestamp!
                         })
                     }
                     
-                    DispatchQueue.main.async {
-                        self.tableView.reloadData()
-                    }
+                    self.timer?.invalidate()
+                    self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleReloadTable), userInfo: nil, repeats: false)
+                    
                 }
             })
         }
     }
     
-    func observeMessages() {
-        let messagesRef = Database.database().reference().child("messages")
-        messagesRef.observe(.childAdded) { snapshot in
-            
-            if let dict = snapshot.value as? [String: Any] {
-                let message = Message()
-                message.fromId = dict["fromId"] as? String
-                message.toId = dict["toId"] as? String
-                message.text = dict["text"] as? String
-                message.timestamp = dict["timestamp"] as? Int
-                
-                if let toId = message.toId {
-                    self.messagesDictionary[toId] = message
-                    self.messages = Array(self.messagesDictionary.values)
-                    self.messages.sort(by: { (message1, message2) -> Bool in
-                        return message1.timestamp! > message2.timestamp!
-                    })
-                }
-                
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
-            }
+    @objc private func handleReloadTable() {
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
         }
     }
+
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let message = messages[indexPath.row]
