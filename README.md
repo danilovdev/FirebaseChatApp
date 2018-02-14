@@ -21,3 +21,8 @@ Parts 8,9 and 10 completed. January 15, 2018 What is done:
 6. Using Firebase observe method for loading messages
 7. Using Dictionary for grouping messages for users
 8. Using sort method for sorting messages by timestamp
+
+Parts 11-15 completed. February 14, 2018 What is done:
+
+1. Adding chat bubbleswhen 
+2. Moving view when keyboard appears
