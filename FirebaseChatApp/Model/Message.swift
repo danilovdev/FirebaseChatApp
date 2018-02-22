@@ -20,6 +20,8 @@ class Message {
     
     var timestamp: Int?
     
+    var imageUrl: String?
+    
     func chatPartnerId() -> String? {
         return fromId == Auth.auth().currentUser?.uid ? toId : fromId
     }
