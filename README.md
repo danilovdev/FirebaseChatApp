@@ -26,3 +26,7 @@ Parts 11-15 completed. February 14, 2018 What is done:
 
 1. Adding chat bubbleswhen 
 2. Moving view when keyboard appears
+
+Parts 16-17 completed. February 22, 2018 What is done:
+
+1. Adding sending images
