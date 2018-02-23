@@ -19,6 +19,8 @@ class MessagesController: UITableViewController {
     
     var messagesDictionary = [String: Message]()
     
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -55,11 +57,8 @@ class MessagesController: UITableViewController {
         messagesReference.observeSingleEvent(of: .value, with: { snapshot in
             
             if let dict = snapshot.value as? [String: Any] {
-                let message = Message()
-                message.fromId = dict["fromId"] as? String
-                message.toId = dict["toId"] as? String
-                message.text = dict["text"] as? String
-                message.timestamp = dict["timestamp"] as? Int
+                let message = Message(dictionary: dict)
+                
                 
                 if let chatPartnerId = message.chatPartnerId() {
                     self.messagesDictionary[chatPartnerId] = message

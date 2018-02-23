@@ -39,6 +39,7 @@ class ChatMessageCell: UICollectionViewCell {
         tv.backgroundColor = .clear
         tv.textColor = .white
         tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.isEditable = false
         return tv
     }()
     
@@ -48,6 +49,7 @@ class ChatMessageCell: UICollectionViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 16
         view.layer.masksToBounds = true
+        
         return view
     }()
     

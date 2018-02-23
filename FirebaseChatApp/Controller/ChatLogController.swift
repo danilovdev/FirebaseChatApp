@@ -43,6 +43,8 @@ class ChatLogController: UICollectionViewController {
         
         collectionView?.keyboardDismissMode = .interactive
         
+        setupKeyboardObservers()
+        
     }
     
     lazy var inputContainerView: UIView = {
@@ -111,12 +113,18 @@ class ChatLogController: UICollectionViewController {
     }
     
     private func setupKeyboardObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardDidlShow), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+//
+//        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
     
-    
+    @objc func handleKeyboardDidlShow(notification: Notification) {
+        if messages.count > 0 {
+            let indexPath = IndexPath(item: messages.count - 1, section: 0)
+            collectionView?.scrollToItem(at: indexPath, at: .top, animated: true)
+        }
+    }
     
     @objc private func handleKeyboardWillShow(notification: Notification) {
         if let userInfo = notification.userInfo,
@@ -150,29 +158,9 @@ class ChatLogController: UICollectionViewController {
     var containerViewButtonAnchor: NSLayoutConstraint?
     
     @objc func handleSend() {
-        let messagesRef = Database.database().reference().child("messages")
-        let childRef = messagesRef.childByAutoId()
-        let fromId = Auth.auth().currentUser!.uid
-        let toId = user!.id!
         let text = inputTextField.text!
-        let timestamp = Int(Date().timeIntervalSince1970)
-        let values: [String: Any] = ["text": text, "toId": toId, "fromId": fromId, "timestamp": timestamp]
-        childRef.updateChildValues(values) { (error, ref) in
-            if error != nil {
-                print(error!)
-                return
-            }
-            
-            self.inputTextField.text = nil
-            
-            let userRefMessages = Database.database().reference().child("user-messages").child(fromId).child(toId)
-            let messageId = childRef.key
-            userRefMessages.updateChildValues([messageId: 1])
-            
-            let recipientUserMessagesRef = Database.database().reference().child("user-messages").child(toId).child(fromId)
-            recipientUserMessagesRef.updateChildValues([messageId: 1])
-            
-        }
+        let properties: [String: Any] = ["text": text]
+        sendMessageWithProperties(properties: properties)
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -188,8 +176,9 @@ class ChatLogController: UICollectionViewController {
         
         if let text = message.text {
            cell.bubbleWidthAnchor?.constant = estimateFrameForText(text: text).width + 32
+        } else if message.imageUrl != nil {
+            cell.bubbleWidthAnchor?.constant = 200
         }
-        
         
         return cell
     }
@@ -198,8 +187,6 @@ class ChatLogController: UICollectionViewController {
         if let profileImageUrl = self.user?.profileImageUrl {
             cell.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
         }
-        
-        
         
         if message.fromId == Auth.auth().currentUser?.uid {
             cell.bubbleView.backgroundColor = ChatMessageCell.blueColor
@@ -239,20 +226,14 @@ class ChatLogController: UICollectionViewController {
                     return
                 }
                 
-                let message = Message()
-                message.fromId = dictionary["fromId"] as? String
-                message.toId = dictionary["toId"] as? String
-                message.text = dictionary["text"] as? String
-                message.timestamp = dictionary["timestamp"] as? Int
-                message.imageUrl = dictionary["imageUrl"] as? String
-                
+                let message = Message(dictionary: dictionary)
                 self.messages.append(message)
                 DispatchQueue.main.async(execute: {
                     self.collectionView?.reloadData()
+                    let indexPath = IndexPath(item: self.messages.count - 1, section: 0)
+                    self.collectionView?.scrollToItem(at: indexPath, at: .bottom, animated: true)
                 })
-                
             })
-            
         }
     }
     
@@ -280,22 +261,28 @@ class ChatLogController: UICollectionViewController {
                     return
                 }
                 if let imageUrl = metaData?.downloadURL()?.absoluteString {
-                    
-                    self.sendMessageWithImageUrl(imageUrl: imageUrl)
-                    
+                    self.sendMessageWithImageUrl(imageUrl: imageUrl, image: image)
                 }
             })
         }
     }
     
-    private func sendMessageWithImageUrl(imageUrl: String) {
-        
+    private func sendMessageWithProperties(properties: [String: Any]) {
         let messagesRef = Database.database().reference().child("messages")
         let childRef = messagesRef.childByAutoId()
         let fromId = Auth.auth().currentUser!.uid
         let toId = user!.id!
         let timestamp = Int(Date().timeIntervalSince1970)
-        let values: [String: Any] = ["imageUrl": imageUrl, "toId": toId, "fromId": fromId, "timestamp": timestamp]
+        var values: [String: Any] = [
+            "toId": toId,
+            "fromId": fromId,
+            "timestamp": timestamp
+        ]
+        
+        properties.forEach { (key, value) in
+            values[key] = value
+        }
+        
         childRef.updateChildValues(values) { (error, ref) in
             if error != nil {
                 print(error!)
@@ -304,15 +291,22 @@ class ChatLogController: UICollectionViewController {
             
             self.inputTextField.text = nil
             
-            let userRefMessages = Database.database().reference().child("user-messages").child(fromId).child(toId)
+            let userRefMessages = Database.database().reference()
+                .child("user-messages").child(fromId).child(toId)
             let messageId = childRef.key
             userRefMessages.updateChildValues([messageId: 1])
             
-            let recipientUserMessagesRef = Database.database().reference().child("user-messages").child(toId).child(fromId)
+            let recipientUserMessagesRef = Database.database().reference()
+                .child("user-messages").child(toId).child(fromId)
             recipientUserMessagesRef.updateChildValues([messageId: 1])
-            
         }
-        
+    }
+    
+    private func sendMessageWithImageUrl(imageUrl: String, image: UIImage) {
+        let properties: [String: Any] = ["imageUrl": imageUrl,
+                          "imageWidth": image.size.width,
+                          "imageHeight": image.size.height]
+        sendMessageWithProperties(properties: properties)
     }
     
 }
@@ -329,8 +323,11 @@ extension ChatLogController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         var height: CGFloat = 80
-        if let text = messages[indexPath.item].text {
+        let message = messages[indexPath.item]
+        if let text = message.text {
             height = estimateFrameForText(text: text).height + 20
+        } else if message.imageUrl != nil, let imageWidth = message.imageWidth?.floatValue, let imageHeight = message.imageHeight?.floatValue {
+            height = CGFloat(imageHeight / imageWidth) * 200
         }
         let width = UIScreen.main.bounds.width
         return CGSize(width: width, height: height)

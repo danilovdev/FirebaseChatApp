@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import Firebase
 
-class Message {
+class Message: NSObject {
     
     var fromId: String?
     
@@ -22,7 +22,25 @@ class Message {
     
     var imageUrl: String?
     
+    var imageWidth: NSNumber?
+    
+    var imageHeight: NSNumber?
+    
     func chatPartnerId() -> String? {
         return fromId == Auth.auth().currentUser?.uid ? toId : fromId
     }
+    
+    init(dictionary: [String: Any]) {
+        super.init()
+        
+        fromId = dictionary["fromId"] as? String
+        toId = dictionary["toId"] as? String
+        text = dictionary["text"] as? String
+        timestamp = dictionary["timestamp"] as? Int
+        imageUrl = dictionary["imageUrl"] as? String
+        imageWidth = dictionary["imageWidth"] as? NSNumber
+        imageHeight = dictionary["imageHeight"] as? NSNumber
+    }
+    
+    
 }
