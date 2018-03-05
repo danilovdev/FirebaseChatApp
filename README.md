@@ -30,3 +30,8 @@ Parts 11-15 completed. February 14, 2018 What is done:
 Parts 16-17 completed. February 22, 2018 What is done:
 
 1. Adding sending images
+
+Parts 18-20 completed. March 5, 2018 What is done:
+
+1. Zooming images
+2. Adding sending videos
