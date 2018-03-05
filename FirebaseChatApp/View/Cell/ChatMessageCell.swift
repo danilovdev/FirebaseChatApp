@@ -10,18 +10,30 @@ import UIKit
 
 class ChatMessageCell: UICollectionViewCell {
     
+    var zoomingDelegate: ZoomingDelegate?
+    
     static let blueColor = UIColor(r: 0, g: 137, b: 249)
     
     static let grayColor = UIColor.gray
     
-    let messageImageView: UIImageView = {
+    lazy var messageImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.layer.cornerRadius = 16
         imageView.layer.masksToBounds = true
         imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.isUserInteractionEnabled = true
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleZoomTap))
+        imageView.addGestureRecognizer(tapGestureRecognizer)
+        
         return imageView
     }()
+    
+    @objc private func handleZoomTap(sender: UIGestureRecognizer) {
+        if let imageView = sender.view as? UIImageView {
+            zoomingDelegate?.handleZoomForImageView(startingImageView: imageView)
+        }
+    }
     
     let profileImageView: UIImageView = {
         let imageView = UIImageView()

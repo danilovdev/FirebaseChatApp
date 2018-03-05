@@ -9,8 +9,22 @@
 import Foundation
 import UIKit
 import Firebase
+import MobileCoreServices
+import AVFoundation
+
+
+protocol ZoomingDelegate {
+    
+    func handleZoomForImageView(startingImageView: UIImageView)
+}
 
 class ChatLogController: UICollectionViewController {
+    
+    var startingFrame: CGRect?
+    
+    var blackBackgroundView: UIView?
+    
+    var startingImageView: UIImageView?
     
     var messages = [Message]()
     
@@ -107,8 +121,13 @@ class ChatLogController: UICollectionViewController {
     
     @objc private func handleUploadTap(sender: UIGestureRecognizer) {
         let imagePickerController = UIImagePickerController()
+        
         imagePickerController.delegate = self
         imagePickerController.allowsEditing = true
+        imagePickerController.mediaTypes = [kUTTypeImage as String,
+                                            kUTTypeMovie as String
+        ]
+        
         present(imagePickerController, animated: true, completion: nil)
     }
     
@@ -169,6 +188,9 @@ class ChatLogController: UICollectionViewController {
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! ChatMessageCell
+        
+        cell.zoomingDelegate = self
+        
         let message = messages[indexPath.item]
         cell.textView.text = message.text
         
@@ -176,8 +198,10 @@ class ChatLogController: UICollectionViewController {
         
         if let text = message.text {
            cell.bubbleWidthAnchor?.constant = estimateFrameForText(text: text).width + 32
+            cell.textView.isHidden = false
         } else if message.imageUrl != nil {
             cell.bubbleWidthAnchor?.constant = 200
+            cell.textView.isHidden = true
         }
         
         return cell
@@ -251,7 +275,7 @@ class ChatLogController: UICollectionViewController {
         collectionView?.collectionViewLayout.invalidateLayout()
     }
     
-    private func uploadToFirebaseStorageUsingImage(image: UIImage) {
+    private func uploadToFirebaseStorageUsingImage(image: UIImage, completion: @escaping (_ imageUrl: String) -> Void) {
         let imageName = NSUUID().uuidString
         let ref = Storage.storage().reference().child("message_images").child(imageName)
         if let uploadData = UIImageJPEGRepresentation(image, 0.2) {
@@ -261,7 +285,7 @@ class ChatLogController: UICollectionViewController {
                     return
                 }
                 if let imageUrl = metaData?.downloadURL()?.absoluteString {
-                    self.sendMessageWithImageUrl(imageUrl: imageUrl, image: image)
+                    completion(imageUrl)
                 }
             })
         }
@@ -309,6 +333,84 @@ class ChatLogController: UICollectionViewController {
         sendMessageWithProperties(properties: properties)
     }
     
+    @objc private func handleZoomOut(sender: UIGestureRecognizer) {
+        if let zoomOutImageView = sender.view as? UIImageView {
+            zoomOutImageView.layer.cornerRadius = 16.0
+            zoomOutImageView.clipsToBounds = true
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                zoomOutImageView.frame = self.startingFrame!
+                self.blackBackgroundView?.alpha = 0
+                self.inputContainerView.alpha = 1.0
+            }, completion: { completed in
+                zoomOutImageView.removeFromSuperview()
+                self.startingImageView?.isHidden = false
+            })
+        }
+    }
+    
+    private func handleImageSelectedForInfo(info: [String: Any]) {
+        var selectedImageFromPicker: UIImage?
+        
+        if let editedImage = info["UIImagePickerControllerEditedImage"] as? UIImage {
+            selectedImageFromPicker = editedImage
+        } else if let originalImage = info["UIImagePickerControllerOriginalImage"] as? UIImage {
+            selectedImageFromPicker = originalImage
+        }
+        
+        if let selectedImage = selectedImageFromPicker {
+            uploadToFirebaseStorageUsingImage(image: selectedImage, completion: { imageUrl in
+                self.sendMessageWithImageUrl(imageUrl: imageUrl, image: selectedImage)
+            })
+        }
+    }
+    
+    private func handleVideoSelectedForUrl(url: URL) {
+        let fileName = NSUUID().uuidString + ".mov"
+        let uploadTask = Storage.storage().reference().child("message_movies").child(fileName).putFile(from: url, metadata: nil, completion: { [unowned self] (metadata, error) in
+            
+            if error != nil {
+                print(error!)
+                return
+            }
+            
+            if let videoUrl = metadata?.downloadURL()?.absoluteString {
+                if let thumbnailImage = self.thumbnailImageForFileUrl(fileUrl: url) {
+                    self.uploadToFirebaseStorageUsingImage(image: thumbnailImage, completion: { imageUrl in
+                        let properties: [String: Any] = [
+                            "imageUrl": imageUrl,
+                            "imageWidth": thumbnailImage.size.width,
+                            "imageHeight": thumbnailImage.size.height,
+                            "videoUrl": videoUrl]
+                        self.sendMessageWithProperties(properties: properties)
+                    })
+                }
+            }
+        })
+        
+        uploadTask.observe(.progress) { [unowned self] snapshot in
+            if let completedUnitCount = snapshot.progress?.completedUnitCount {
+                self.navigationItem.title = String(completedUnitCount)
+            }
+        }
+        
+        uploadTask.observe(.success) { [unowned self] snapshot in
+            self.navigationItem.title = self.user?.name
+        }
+    }
+    
+    private func thumbnailImageForFileUrl(fileUrl: URL) -> UIImage? {
+        let asset = AVAsset(url: fileUrl)
+        let imageGenerator = AVAssetImageGenerator(asset: asset)
+        
+        do {
+            let thumbnailCGImage = try imageGenerator.copyCGImage(at: CMTimeMake(1, 60), actualTime: nil)
+            return UIImage(cgImage: thumbnailCGImage)
+        } catch let error as NSError {
+            print(error)
+        }
+        return nil
+    }
+    
 }
 
 extension ChatLogController: UITextFieldDelegate {
@@ -341,20 +443,45 @@ extension ChatLogController: UINavigationControllerDelegate, UIImagePickerContro
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        var selectedImageFromPicker: UIImage?
-        
-        if let editedImage = info["UIImagePickerControllerEditedImage"] as? UIImage {
-            selectedImageFromPicker = editedImage
-        } else if let originalImage = info["UIImagePickerControllerOriginalImage"] as? UIImage {
-            selectedImageFromPicker = originalImage
-        }
-        
-        if let selectedImage = selectedImageFromPicker {
-            uploadToFirebaseStorageUsingImage(image: selectedImage)
+        if let videoUrl = info[UIImagePickerControllerMediaURL] as? URL {
+            handleVideoSelectedForUrl(url: videoUrl)
+        } else {
+            handleImageSelectedForInfo(info: info)
         }
         
         dismiss(animated: true)
     }
     
+}
+
+extension ChatLogController: ZoomingDelegate {
+    func handleZoomForImageView(startingImageView: UIImageView) {
+        self.startingImageView = startingImageView
+        self.startingImageView?.isHidden = true
+        startingFrame = startingImageView.superview?.convert(startingImageView.frame, to: nil)
+        if let startingFrame = startingFrame, let keyWindow = UIApplication.shared.keyWindow {
+            
+            blackBackgroundView = UIView(frame: keyWindow.frame)
+            blackBackgroundView?.backgroundColor = .black
+            blackBackgroundView?.alpha = 0.0
+            keyWindow.addSubview(blackBackgroundView!)
+            
+            let zoomingImageView = UIImageView(frame: startingFrame)
+            zoomingImageView.isUserInteractionEnabled = true
+            let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleZoomOut))
+            zoomingImageView.addGestureRecognizer(tapGestureRecognizer)
+            zoomingImageView.image = startingImageView.image
+            keyWindow.addSubview(zoomingImageView)
+            
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                self.blackBackgroundView?.alpha = 1.0
+                self.inputContainerView.alpha = 0.0
+                
+                let height = (startingFrame.height / startingFrame.width) * keyWindow.frame.width
+                zoomingImageView.frame = CGRect(x: 0, y: 0, width: keyWindow.frame.width, height: height)
+                zoomingImageView.center = keyWindow.center
+            }, completion: nil)
+        }
+    }
 }
 
